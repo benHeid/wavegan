@@ -109,8 +109,8 @@ def decode_extract_and_batch(
       audio: [batch_size, slice_len, 1, nch]
   """
   # Create dataset of filepaths
-  dataset = tf.data.Dataset.from_tensor_slices(fps)
-
+  dataset = tf.compat.v1.data.Dataset.from_tensor_slices(fps)
+  prefetch_gpu_num = None
   # Shuffle all filepaths every epoch
   if shuffle:
     dataset = dataset.shuffle(buffer_size=len(fps))
@@ -127,7 +127,7 @@ def decode_extract_and_batch(
       normalize=decode_normalize,
       fast_wav=decode_fast_wav)
 
-    audio = tf.py_func(
+    audio = tf.compat.v1.py_func(
         _decode_audio_closure,
         [fp],
         tf.float32,
@@ -156,7 +156,7 @@ def decode_extract_and_batch(
       audio = audio[start:]
 
     # Extract sliceuences
-    audio_slices = tf.contrib.signal.frame(
+    audio_slices = tf.signal.frame(
         audio,
         slice_len,
         slice_hop,
